@@ -1,84 +1,99 @@
-# DermAI – Artificial Intelligence Pipeline Overview
+# DermAI – Artificial Intelligence Pipeline
 
-This document summarizes the AI components developed for the DermAI system.
+## Overview
 
-1. Image Validation Module
+This document provides a comprehensive summary of the AI components developed for the DermAI system, a deep learning-based solution for skin lesion classification and analysis.
 
-A full pre-processing and verification pipeline to ensure:
+---
 
-Correct image format
+## Core Components
 
-Proper skin lesion localization
+### 1. Image Validation Module
 
-Absence of artifacts (text, borders, stickers)
+A comprehensive pre-processing and verification pipeline designed to ensure data quality before classification.
 
-Adequate resolution and color profile
+**Key Features:**
+- Correct image format validation
+- Proper skin lesion localization
+- Absence of artifacts detection (text, borders, stickers)
+- Adequate resolution and color profile verification
 
-This module prevents invalid images from being processed by the classifier.
+**Purpose:** This module prevents invalid or low-quality images from being processed by the classification model, ensuring reliable predictions.
 
-2. Model Training Pipeline
+---
 
-Implemented using stratified 3-fold cross-validation to ensure:
+### 2. Model Training Pipeline
 
-Robust generalization
+A robust training framework built on stratified 3-fold cross-validation methodology.
 
-Fair evaluation on non-seen data
+**Training Strategy:**
+- Stratified K-Fold Cross-Validation (k=3) to maintain class distribution across folds
+- Robust generalization on non-seen data
+- Stable performance across different data splits
 
-Stable performance across splits
+**Technical Implementation:**
+- ResNet50 fine-tuning
+- Class imbalance handling techniques
+- Learning rate scheduling
+- Extensive data augmentation
 
-Includes:
+---
 
-ResNet50 fine-tuning
+### 3. Ensemble Learning
 
-Class imbalance handling
+An ensemble approach combining predictions from three fold-trained models using probability averaging.
 
-Learning rate scheduling
+**Benefits:**
+- Improved stability across predictions
+- Higher malignant recall rates
+- Reduced variance across folds
 
-Extensive augmentation
+---
 
-3. Ensemble Learning
+### 4. Grad-CAM Explainability
 
-Three fold models are combined using probability averaging.
-The ensemble provides:
+Gradient-weighted Class Activation Mapping (Grad-CAM) implementation for model interpretability.
 
-Improved stability
+**Features:**
+- Generates visual heatmaps highlighting influential regions of the lesion
+- Improves prediction interpretability for medical professionals
+- Provides transparency in the decision-making process
 
-Higher malignant recall
+**Purpose:** Enhances trust and clinical utility by showing which regions of the skin lesion influenced the model's prediction.
 
-Reduced variance across folds
+---
 
-4. Grad-CAM Explainability
+### 5. Comparative Study
 
-Grad-CAM heatmaps were generated to highlight regions of the lesion influencing the prediction, improving interpretability for medical use.
+A comprehensive evaluation of multiple deep learning architectures to identify the optimal model for DermAI.
 
-5. Comparative Study
+**Architectures Evaluated:**
+- ResNet50
+- EfficientNet
+- DenseNet
+- MobileNet
+- VGG
+- InceptionV3
+- Custom CNN
 
-Multiple deep-learning architectures were trained:
+**Outcome:** ResNet50 was selected as the optimal architecture based on performance metrics, computational efficiency, and medical applicability.
 
-ResNet50
+---
 
-EfficientNet
+### 6. Final Training (Production Model)
 
-DenseNet
+The production-ready model training process using insights from cross-validation experiments.
 
-MobileNet
+**Training Configuration:**
+- Full dataset utilization
+- Best hyperparameters from cross-validation
+- Optimized classification threshold for inference
+- Final model deployment for production use
 
-VGG
+**Purpose:** This final model serves as the production model for the DermAI system, ready for clinical deployment.
 
-InceptionV3
+---
 
-Custom CNN
+## Summary
 
-The comparison supports the selection of ResNet50 as the optimal architecture for DermAI.
-
-6. Final Training (Production Model)
-
-After identifying the best-performing fold and optimal threshold, a final model will be trained using:
-
-Full dataset
-
-Best hyperparameters
-
-Selected threshold for inference
-
-This final model becomes the production model for DermAI.
+The DermAI AI pipeline combines rigorous validation, robust training methodologies, ensemble techniques, and explainability tools to deliver a reliable and interpretable skin lesion classification system suitable for medical applications.
