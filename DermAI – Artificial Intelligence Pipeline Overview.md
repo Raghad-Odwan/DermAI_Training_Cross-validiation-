@@ -19,6 +19,7 @@ A comprehensive pre-processing and verification pipeline designed to ensure data
 - Adequate resolution and color profile verification
 
 **Purpose:** This module prevents invalid or low-quality images from being processed by the classification model, ensuring reliable predictions.
+  
 **link:** https://github.com/Raghad-Odwan/Image-Validation-Module-DermAI 
 ---
 
@@ -60,6 +61,8 @@ Gradient-weighted Class Activation Mapping (Grad-CAM) implementation for model i
 - Provides transparency in the decision-making process
 
 **Purpose:** Enhances trust and clinical utility by showing which regions of the skin lesion influenced the model's prediction.
+
+   
 **link:** https://github.com/Raghad-Odwan/GradCAM-Module-DermAI/tree/main 
 ---
 
@@ -77,6 +80,7 @@ A comprehensive evaluation of multiple deep learning architectures to identify t
 - Custom CNN
 
 **Outcome:** ResNet50 was selected as the optimal architecture based on performance metrics, computational efficiency, and medical applicability.
+  
 **link:** https://github.com/Raghad-Odwan/DermAI_Comparative_Algorithms 
 ---
 
@@ -91,6 +95,7 @@ The production-ready model training process using insights from cross-validation
 - Final model deployment for production use
 
 **Purpose:** This final model serves as the production model for the DermAI system, ready for clinical deployment.
+  
 **link:** https://github.com/Raghad-Odwan/DermAI_Final_Training 
 
 ---
