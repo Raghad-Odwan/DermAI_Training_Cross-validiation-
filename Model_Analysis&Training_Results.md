@@ -88,29 +88,14 @@ Stratification ensures balanced class distribution and reliable performance esti
 
 ## 5. Fold-Level Performance Analysis
 
-### Fold 1
-| Metric | Value |
-|--------|-------|
-| Accuracy | 0.8368 |
-| Precision (Malignant) | 0.778 |
-| Recall (Malignant) | 0.6821 |
-| F1-Score | 0.7269 |
+## Fold-Level Performance Analysis
 
-### Fold 2
-| Metric | Value |
-|--------|-------|
-| Accuracy | 0.8288 |
-| Precision (Malignant) | 0.7415 |
-| Recall (Malignant) | 0.7097 |
-| F1-Score | 0.7253 |
+| Fold | Accuracy | Precision (Malignant) | Recall (Malignant) | F1-Score |
+|------|----------|-----------------------|--------------------|----------|
+| Fold 1 | 0.8368 | 0.7780 | 0.6821 | 0.7269 |
+| Fold 2 | 0.8288 | 0.7415 | 0.7097 | 0.7253 |
+| Fold 3 | 0.7983 | 0.6504 | 0.7928 | 0.7146 |
 
-### Fold 3
-| Metric | Value |
-|--------|-------|
-| Accuracy | 0.7983 |
-| Precision (Malignant) | 0.6504 |
-| Recall (Malignant) | 0.7928 |
-| F1-Score | 0.7146 |
 
 ### Cross-Fold Summary
 
