@@ -1,18 +1,12 @@
-# Model Analysis and Training Results — DermAI Training Pipeline
+# Model Analysis and Cross-Validation Results — DermAI Training Pipeline
 
 ## 1. Overview
 
-This document provides a comprehensive analysis of the training, evaluation, and validation results for the DermAI binary skin lesion classifier (benign vs malignant). The training pipeline implements advanced machine learning practices including stratified cross-validation, ensemble learning, and threshold optimization to ensure robust clinical performance.
+This document presents an academic and structured analysis of the **stratified cross-validation results** for the DermAI binary skin lesion classification system (Benign vs. Malignant). The analysis reflects the finalized experimental outcomes obtained from a 3-fold stratified cross-validation strategy and is intended for public release as part of the project documentation on GitHub.
 
-**Repository:** https://github.com/Raghad-Odwan/DermAI_Training
+The DermAI training pipeline emphasizes **clinical reliability**, **robust generalization**, and **transparent evaluation**, with a specific focus on maximizing malignant lesion sensitivity while maintaining stable overall performance.
 
-### Key Objectives
-
-- Develop a reliable binary classifier for skin lesion diagnosis  
-- Ensure generalization through stratified k-fold cross-validation  
-- Optimize sensitivity for malignant lesion detection  
-- Provide interpretable predictions through Grad-CAM visualization  
-- Establish a production-ready model through ensemble techniques  
+**Repository:** [https://github.com/Raghad-Odwan/DermAI_Training](https://github.com/Raghad-Odwan/DermAI_Training)
 
 ---
 
@@ -20,261 +14,238 @@ This document provides a comprehensive analysis of the training, evaluation, and
 
 ### Dataset Characteristics
 
-- **Total Images:** 19,505 dermoscopic images  
-- **Classes:** Binary classification (Benign / Malignant)  
-- **Source:** ISIC dataset  
-- **Challenge:** Natural class imbalance  
+* **Total Images:** 19,505 dermoscopic images
+* **Classes:** Binary (Benign / Malignant)
+* **Source:** ISIC Dataset
+* **Key Challenge:** Natural class imbalance favoring benign samples
 
 ### Stratified 3-Fold Cross-Validation
 
-| Fold | Training Samples | Validation Samples |
-|------|------------------|--------------------|
-| Fold 1 | ~11,000 | ~5,500–6,500 |
-| Fold 2 | ~11,000 | ~5,500–6,500 |
-| Fold 3 | ~11,000 | ~5,500–6,500 |
+A stratified 3-fold cross-validation approach was adopted to ensure consistent class distribution across training and validation splits.
 
-Stratification ensures balanced class distribution and reliable performance estimation.
+| Fold   | Training Samples | Validation Samples |
+| ------ | ---------------- | ------------------ |
+| Fold 1 | 13,000           | 6,501              |
+| Fold 2 | 13,001           | 6,500              |
+| Fold 3 | 13,001           | 6,500              |
+
+This strategy provides a reliable estimate of generalization performance while minimizing variance caused by data imbalance.
 
 ---
 
 ## 3. Model Architecture
 
-### Base Architecture: ResNet50
+### Backbone: ResNet50
 
-**Specifications:**
-- Backbone: ResNet50 (ImageNet pretrained)
-- Trainable Layers: Last 40 layers
-- Custom Head:
-  - GlobalAveragePooling2D  
-  - Dense + Dropout (0.4)  
-  - Dense + Dropout (0.3)  
-  - Softmax Output  
+* Pretrained on ImageNet
+* Fine-tuning applied to the last **40 layers**
 
-**Training Configuration:**
-- Loss: Binary Cross-Entropy  
-- Optimizer: AdamW  
-- LR: 1e-5 with ReduceLROnPlateau  
-- Regularization: Dropout + Class Weights  
-- Early Stopping enabled  
+### Custom Classification Head
 
-**Architecture Selection Criteria:**
-- Best balance of accuracy and efficiency  
-- Higher malignant recall  
-- Stable cross-fold performance  
+* Global Average Pooling
+* Fully Connected Layer + Dropout (0.4)
+* Fully Connected Layer + Dropout (0.3)
+* Softmax Output (2 classes)
+
+### Training Configuration
+
+* **Loss Function:** Binary Cross-Entropy
+* **Optimizer:** AdamW
+* **Initial Learning Rate:** 1e-4 with ReduceLROnPlateau
+* **Regularization:** Dropout + Class Weights
+* **Early Stopping:** Enabled
+
+Class weighting was applied to mitigate imbalance:
+
+```
+{0: ~0.73 (Benign), 1: ~1.57 (Malignant)}
+```
 
 ---
 
 ## 4. Training Pipeline
 
 ### Data Augmentation
-- Rotation ±40°  
-- Width/Height shift ±10%  
-- Zoom up to 20%  
-- Horizontal flip  
-- Brightness ±20%  
-- 1/255 pixel scaling  
+
+* Rotation (±40°)
+* Width/Height Shift (±10%)
+* Zoom (≤20%)
+* Horizontal Flip
+* Brightness Adjustment (±20%)
+* Pixel Scaling (1/255)
 
 ### Training Parameters
-- Batch Size: 32  
-- Epochs: 30 per fold  
-- Input Size: 224×224  
 
-### Monitoring
-- EarlyStopping  
-- ReduceLROnPlateau  
-- ModelCheckpoint  
+* **Batch Size:** 32
+* **Epochs:** Up to 30 per fold
+* **Input Resolution:** 224 × 224
+
+### Monitoring and Callbacks
+
+* EarlyStopping
+* ReduceLROnPlateau
+* ModelCheckpoint (best validation loss)
 
 ---
 
 ## 5. Fold-Level Performance Analysis
 
-## Fold-Level Performance Analysis
+The following metrics were computed on each fold’s validation set using the restored best checkpoint.
 
-| Fold | Accuracy | Precision (Malignant) | Recall (Malignant) | F1-Score |
-|------|----------|-----------------------|--------------------|----------|
-| Fold 1 | 0.8368 | 0.7780 | 0.6821 | 0.7269 |
-| Fold 2 | 0.8288 | 0.7415 | 0.7097 | 0.7253 |
-| Fold 3 | 0.7983 | 0.6504 | 0.7928 | 0.7146 |
+### Quantitative Results
 
+| Fold   | Accuracy | Precision (Malignant) | Recall (Malignant) | F1-Score |
+| ------ | -------- | --------------------- | ------------------ | -------- |
+| Fold 1 | 0.8296   | 0.7839                | 0.6415             | 0.7056   |
+| Fold 2 | 0.8182   | 0.7913                | 0.5826             | 0.6711   |
+| Fold 3 | 0.8148   | 0.6862                | 0.7710             | 0.7261   |
 
-### Cross-Fold Summary
+### Observations
 
-| Metric | Mean | Range |
-|--------|------|--------|
-| Accuracy | 0.822 | 0.798–0.837 |
-| Malignant Recall | 0.727 | 0.682–0.793 |
-| Malignant F1 | 0.722 | 0.715–0.727 |
-| Benign Recall | 0.890 | — |
+* **Fold 1:** Highest overall accuracy, but relatively lower malignant recall.
+* **Fold 2:** Best precision stability and cleanest validation loss behavior.
+* **Fold 3:** Highest malignant recall, at the expense of lower precision.
 
 ---
 
-## 6. Ensemble Model Analysis
+## 6. Cross-Fold Summary Statistics
 
-### Method
-Ensemble = Average probabilistic outputs of the 3 folds.
+| Metric             | Mean  | Range       |
+| ------------------ | ----- | ----------- |
+| Accuracy           | 0.821 | 0.815–0.830 |
+| Malignant Recall   | 0.665 | 0.583–0.771 |
+| Malignant F1-Score | 0.701 | 0.671–0.726 |
+| Benign Recall      | ~0.90 | Stable      |
+
+These results demonstrate **consistent generalization** with expected trade-offs between recall and precision across folds.
+
+---
+
+## 7. Model Selection for Final Training
+
+Although Fold 3 achieved the highest malignant recall, **Fold 2 was selected as the initialization point for final full-dataset training**, based on the following criteria:
+
+* More stable validation loss trajectory
+* Higher precision for malignant class
+* Reduced overfitting behavior
+* Better calibration consistency
+
+**Final Training Strategy:**
+
+* Initialize with **Fold 2 best weights**
+* Retrain on the full dataset (19,505 images)
+* Apply optimized threshold and augmentations
+
+---
+
+## 8. Ensemble Considerations
+
+An ensemble model was constructed by averaging probabilistic outputs from all three folds.
 
 ### Benefits
-- Reduced variance  
-- Better calibration  
-- Improved robustness  
-- Smoother probability distribution  
 
-### Ensemble Performance
+* Reduced prediction variance
+* Improved robustness
+* Smoother probability calibration
 
-| Metric | Value |
-|--------|--------|
-| Accuracy | 0.830 |
-| Malignant Recall | 0.730 |
-| Stability | High |
+### Ensemble Performance (Validation-Level)
 
----
-
-## 7. Threshold Optimization
-
-### Evaluation
-Default threshold (0.5) is conservative.
-
-### Threshold Comparison
-
-| Threshold | Recall | Precision | F1 | Suitability |
-|-----------|---------|-----------|--------|-------------|
-| 0.35 | High | Moderate | Balanced | High sensitivity |
-| 0.40 | Optimal | Good | Best | Recommended |
-| 0.45 | Good | Better | Good | Balanced |
-| 0.50 | Moderate | Best | Moderate | Conservative |
-
-**Recommended Threshold:** 0.40
+| Metric           | Value |
+| ---------------- | ----- |
+| Accuracy         | ~0.83 |
+| Malignant Recall | ~0.73 |
+| Stability        | High  |
 
 ---
 
-## 8. Strengths of the Training Pipeline
+## 9. Threshold Optimization
+
+Default probability threshold (0.5) was found to be overly conservative for malignant detection.
+
+| Threshold | Recall      | Precision | F1       | Clinical Suitability |
+| --------- | ----------- | --------- | -------- | -------------------- |
+| 0.35      | High        | Moderate  | Balanced | Screening-focused    |
+| **0.40**  | **Optimal** | Good      | **Best** | **Recommended**      |
+| 0.45      | Moderate    | Better    | Good     | Balanced             |
+| 0.50      | Lower       | Highest   | Moderate | Conservative         |
+
+**Recommended Deployment Threshold:** **0.40**
+
+---
+
+## 10. Strengths of the Pipeline
 
 ### Technical
-- Reproducible  
-- Robust multi-fold consistency  
-- Efficient training workflow  
-- Modular architecture  
+
+* Reproducible and modular design
+* Stable cross-fold behavior
+* Efficient training workflow
 
 ### Methodological
-- Stratified k-fold cross-validation  
-- Ensemble learning  
-- Grad-CAM explainability  
-- Threshold tuning  
-- Complete evaluation beyond accuracy  
+
+* Stratified cross-validation
+* Class-weight handling
+* Ensemble learning
+* Threshold optimization
+* Explainability via Grad-CAM
 
 ### Documentation
-- Full logs  
-- Complete metrics  
-- ROC/Confusion Plots  
-- Clear code separation  
+
+* Complete training logs
+* Confusion matrices and ROC curves
+* Metric summaries per fold
 
 ---
 
-## 9. Limitations and Future Improvements
+## 11. Limitations and Future Work
 
-### Limitations
-- Malignant recall ~72–73% (below ideal 75–80%)  
-- Class imbalance persists  
-- Limited rare subtype coverage  
-- Low input resolution  
+### Current Limitations
 
-### Proposed Improvements
+* Malignant recall remains below ideal clinical target (75–80%)
+* Residual class imbalance
+* Limited representation of rare subtypes
+* Fixed input resolution
+
+### Planned Improvements
+
 **Short-Term**
-- Increase trainable layers  
-- Higher resolution input  
-- Stronger augmentation  
+
+* Increase fine-tuned layers
+* Higher input resolution
+* Stronger augmentation
 
 **Medium-Term**
-- Focal Loss  
-- Attention layers  
-- EfficientNetV2 / ConvNeXt  
+
+* Focal Loss
+* Attention mechanisms
+* EfficientNetV2 / ConvNeXt backbones
 
 **Long-Term**
-- Multi-class support  
-- Metadata integration  
-- Mobile optimization  
-- Continuous learning pipeline  
 
----
-
-## 10. Next Steps
-
-### Full Dataset Training for Production
-
-**Plan:**
-1. Use Fold 1 weights as initialization  
-2. Train on full 19,505 images  
-3. Apply optimal hyperparameters  
-4. Enhanced augmentations  
-5. Validate on independent test set  
-
-**Expected Outcomes:**
-- Higher malignant sensitivity  
-- Improved generalization  
-- Final deployable model  
-
----
-
-## 11. Comparative Context
-
-### Research Alignment
-- Literature ResNet50 baselines: Accuracy 0.80–0.85, F1 0.70–0.75  
-- DermAI: Accuracy 0.83, F1 0.72  
-
-### Academic Contributions
-- Rigorous cross-validation  
-- Ensemble methodology  
-- Explainability  
-- Threshold optimization  
-- Fully reproducible  
+* Multi-class classification
+* Metadata integration
+* Mobile-friendly optimization
 
 ---
 
 ## 12. Conclusion
 
-The DermAI training pipeline provides a robust, clinically-oriented model development strategy. Through cross-validation, ensemble learning, and threshold analysis, the system prioritizes malignant detection while maintaining stability and interpretability.
+The DermAI cross-validation study demonstrates a **research-grade, clinically aware training pipeline**. The results confirm reliable generalization, interpretable behavior, and a well-justified model selection strategy.
 
-### Key Achievements
-- Consistent cross-fold results  
-- Ensemble stability  
-- Grad-CAM support  
-- Threshold optimization  
-- Production-ready architecture  
-
-The pipeline demonstrates research-grade quality and strong potential for deployment in clinical decision support systems.
+The selection of **Fold 2 as the foundation for final training** ensures balanced performance and stable convergence, positioning DermAI as a strong candidate for deployment in clinical decision-support settings.
 
 ---
 
-## 13. Technical Specifications Summary
+## 13. Artifacts and Outputs
 
-### Environment
-- Framework: TensorFlow/Keras  
-- Hardware: GPU  
-- Python: 3.8+  
-
-### Model Files
-- best_resnet50_fold1.keras  
-- best_resnet50_fold2.keras  
-- best_resnet50_fold3.keras  
-- Training Logs  
-- Metrics JSON Files  
-
-### Generated Artifacts
-- ROC curves  
-- Confusion matrices  
-- Loss/Accuracy curves  
-- Grad-CAM samples  
-- Threshold analysis reports  
+* `best_resnet50_fold1.keras`
+* `best_resnet50_fold2.keras` (Selected)
+* `best_resnet50_fold3.keras`
+* Training logs
+* Metrics (JSON)
+* ROC curves
+* Confusion matrices
+* Grad-CAM visualizations
 
 ---
 
-## References
-
-Repository:  
-https://github.com/Raghad-Odwan/DermAI_Training
-
-Related Components:  
-- Image Validation Module  
-- GradCAM Module  
-- Comparative Algorithms Study  
-- Final Training Pipeline  
